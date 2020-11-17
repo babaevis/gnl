@@ -13,11 +13,17 @@
 #include "get_next_line.h"
 #include <stdio.h>
 
-char	*check_reminder(char *reminder, char **line)
+static void	ft_strclr(char *s)
+{
+    if (s)
+        while (*s)
+            *s++ = '\0';
+}
+
+static void	check_reminder(char *reminder, char **line)
 {
 	char *ptr;
 
-	ptr = NULL;
 	if (reminder)
 	{
 		if ((ptr = ft_strchr(reminder, '\n')))
@@ -29,10 +35,11 @@ char	*check_reminder(char *reminder, char **line)
 		else
 		{
 			*line = ft_strdup(reminder);
-			free(reminder);
+			ft_strclr(reminder);
 		}
 	}
-	return ptr;
+	else
+		*line = ft_strdup("\0");
 }
 
 int		get_next_line(int fd, char **line)
@@ -43,17 +50,18 @@ int		get_next_line(int fd, char **line)
 	char		*ptr;
 	char 		*tmp;
 
-	*line = ft_strdup("\0");
 	check_reminder(reminder, line);
 	while ((bytes = read(fd, buff, BUFF_SIZE)))
 	{
-		if (bytes == -1)
+		if (bytes < 0)
 			return (-1);
 		buff[bytes] = '\0';
 		if ((ptr = ft_strchr(buff, '\n')))
 		{
 			*ptr = '\0';
-			*line = ft_strjoin(*line ,buff);
+			tmp = *line;
+			*line = ft_strjoin(*line, buff);
+			free(tmp);
 			reminder = ft_strdup(ptr + 1);
 			return (1);
 		}
@@ -61,7 +69,7 @@ int		get_next_line(int fd, char **line)
 		*line = ft_strjoin(*line, buff);
 		free(tmp);
 	}
-	return (0);
+	return (bytes || ft_strlen(reminder) || ft_strlen(*line) ? 1 : 0);
 }
 
 int main()
@@ -70,9 +78,8 @@ int main()
 	char *str;
 	int i = 0;
 	while (get_next_line(fd, &str)) {
-		printf("%s\n", str);
-		free(str);
-	}
-	printf("%s\n", str);
-	return 0;
+        printf("%s\n", str);
+        free(str);
+    }
+    return 0;
 }

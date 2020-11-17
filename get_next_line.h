@@ -16,7 +16,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#define BUFF_SIZE 32
+#define BUFF_SIZE 1
+int 	get_next_line(int fd, char **line);
 size_t	ft_strlen(const char *str);
 char 	*ft_strdup(const char *str);
 char 	*ft_strjoin(const char *s1, const char *s2);
