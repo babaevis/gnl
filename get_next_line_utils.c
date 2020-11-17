@@ -6,31 +6,55 @@
 /*   By: kroyce <kroyce@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 23:23:43 by kroyce            #+#    #+#             */
-/*   Updated: 2020/11/07 00:05:12 by kroyce           ###   ########.fr       */
+/*   Updated: 2020/11/17 19:32:20 by kroyce           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t  ft_strlen(const char *str)
+size_t	ft_strlen(const char *str)
 {
-	size_t i;
+	int i;
 
 	if (!str)
-		return 0;
+		return (0);
 	i = 0;
-	while (str[i] != 0)
-	{
+	while (str[i])
 		i++;
-	}
 	return (i);
 }
 
-char    *ft_strdup(const char *str)
+char	*ft_substr(const char *str, unsigned int start, size_t len)
 {
-	char    *res;
-	int     size;
-	int     i;
+	char			*res;
+	unsigned int	i;
+
+	if (!str)
+		return (NULL);
+	if (start >= ft_strlen(str))
+		return (ft_strdup("\0"));
+	i = 0;
+	res = (char *)malloc(len + 1);
+	if (res == NULL)
+		return (NULL);
+	while (i != start)
+		i++;
+	start = 0;
+	while (len-- && *str)
+	{
+		res[start] = str[i];
+		i++;
+		start++;
+	}
+	res[start] = 0;
+	return (res);
+}
+
+char	*ft_strdup(const char *str)
+{
+	char	*res;
+	int		size;
+	int		i;
 
 	i = 0;
 	size = ft_strlen(str);
@@ -45,10 +69,10 @@ char    *ft_strdup(const char *str)
 	return (res);
 }
 
-char    *ft_strjoin(const char *s1, const char *s2)
+char	*ft_strjoin(const char *s1, const char *s2)
 {
-	char    *res;
-	int     i;
+	char	*res;
+	int		i;
 
 	i = 0;
 	if (s1 == NULL || s2 == NULL)
@@ -69,16 +93,7 @@ char    *ft_strjoin(const char *s1, const char *s2)
 	return (res);
 }
 
-char    *ft_strchr(const char *s, int c)
-{
-	while (*s != c && *s != 0)
-		s++;
-	if (*s == c)
-		return ((char *)s);
-	return (NULL);
-}
-
-size_t  ft_strcpy(char *dst, const char *src)
+size_t	ft_strcpy(char *dst, const char *src)
 {
 	size_t i;
 

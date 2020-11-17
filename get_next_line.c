@@ -6,80 +6,89 @@
 /*   By: kroyce <kroyce@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 18:08:54 by kroyce            #+#    #+#             */
-/*   Updated: 2020/11/08 20:39:22 by kroyce           ###   ########.fr       */
+/*   Updated: 2020/11/17 22:21:30 by kroyce           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 static void	ft_strclr(char *s)
 {
-    if (s)
-        while (*s)
-            *s++ = '\0';
+	if (s)
+		while (*s)
+			*s++ = '\0';
 }
 
-static void	check_reminder(char *reminder, char **line)
+static char	*ft_strchr(const char *s, int c)
 {
-	char *ptr;
+	while (*s != c && *s != 0)
+		s++;
+	if (*s == c)
+		return ((char *)s);
+	return (NULL);
+}
 
+static int	make_line(char **line, char *reminder)
+{
+	int		len;
+	char	*tmp;
+
+	len = 0;
 	if (reminder)
 	{
-		if ((ptr = ft_strchr(reminder, '\n')))
+		tmp = reminder;
+		while (tmp[len] != '\0' && tmp[len] != '\n')
+			len++;
+		if (tmp[len] == '\n')
 		{
-			*ptr = '\0';
-			*line = ft_strdup(reminder);
-			ft_strcpy(reminder, ptr + 1);
+			*line = ft_substr(tmp, 0, len);
+			ft_strcpy(reminder, tmp + len + 1);
+			return (1);
 		}
-		else
+		else if (tmp[len] == '\0')
 		{
-			*line = ft_strdup(reminder);
+			*line = ft_substr(tmp, 0, len);
 			ft_strclr(reminder);
+			return (0);
 		}
 	}
-	else
+	if (!ft_strlen(*line))
 		*line = ft_strdup("\0");
+	return (0);
 }
 
-int		get_next_line(int fd, char **line)
+int			get_next_line(int fd, char **line)
 {
 	static char *reminder;
 	char		buff[BUFF_SIZE + 1];
 	int			bytes;
-	char		*ptr;
-	char 		*tmp;
+	char		*tmp;
 
-	check_reminder(reminder, line);
+	if (fd < 0 || BUFF_SIZE <= 0)
+		return (-1);
 	while ((bytes = read(fd, buff, BUFF_SIZE)))
 	{
 		if (bytes < 0)
 			return (-1);
 		buff[bytes] = '\0';
-		if ((ptr = ft_strchr(buff, '\n')))
-		{
-			*ptr = '\0';
-			tmp = *line;
-			*line = ft_strjoin(*line, buff);
-			free(tmp);
-			reminder = ft_strdup(ptr + 1);
-			return (1);
-		}
-		tmp = *line;
-		*line = ft_strjoin(*line, buff);
+		if (reminder == NULL)
+			reminder = ft_strdup("\0");
+		tmp = reminder;
+		reminder = ft_strjoin(reminder, buff);
 		free(tmp);
+		if (ft_strchr(buff, '\n'))
+			break ;
 	}
-	return (bytes || ft_strlen(reminder) || ft_strlen(*line) ? 1 : 0);
+	return (make_line(line, reminder));
 }
-
-int main()
-{
-	int fd = open("t.txt", O_RDONLY);
+#include <stdio.h>
+int main(){
+	int fd = open("/Users/kroyce/qwert/t.txt", O_RDONLY);
 	char *str;
-	int i = 0;
-	while (get_next_line(fd, &str)) {
-        printf("%s\n", str);
-        free(str);
-    }
-    return 0;
+	while (get_next_line(fd, &str)){
+		printf("%s\n", str);
+		free(str);
+	}
+	free(str);
+	return 0;
 }
