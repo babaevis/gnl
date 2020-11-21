@@ -12,13 +12,6 @@
 
 #include "get_next_line.h"
 
-static void	ft_strclr(char *s)
-{
-	if (s)
-		while (*s)
-			*s++ = '\0';
-}
-
 static char	*ft_strchr(const char *s, int c)
 {
 	while (*s != c && *s != 0)
@@ -31,29 +24,28 @@ static char	*ft_strchr(const char *s, int c)
 static int	make_line(char **line, char *reminder)
 {
 	int		len;
-	char	*tmp;
 
 	len = 0;
 	if (reminder)
 	{
-		tmp = reminder;
-		while (tmp[len] != '\0' && tmp[len] != '\n')
+		while (reminder[len] != '\0' && reminder[len] != '\n')
 			len++;
-		if (tmp[len] == '\n')
+		if (reminder[len] == '\n')
 		{
-			*line = ft_substr(tmp, 0, len);
-			ft_strcpy(reminder, tmp + len + 1);
+			if (!(*line = ft_substr(reminder, 0, len)))
+				return (-1);
+			ft_strcpy(reminder, reminder + len + 1);
 			return (1);
 		}
-		else if (tmp[len] == '\0')
+		else if (reminder[len] == '\0')
 		{
-			*line = ft_substr(tmp, 0, len);
-			ft_strclr(reminder);
+			if (!(*line = ft_substr(reminder, 0, len)))
+				return (-1);
+			free(reminder);
 			return (0);
 		}
 	}
-	if (!ft_strlen(*line))
-		*line = ft_strdup("\0");
+	*line = ft_strdup("\0");
 	return (0);
 }
 
@@ -74,21 +66,11 @@ int			get_next_line(int fd, char **line)
 		if (reminder == NULL)
 			reminder = ft_strdup("\0");
 		tmp = reminder;
-		reminder = ft_strjoin(reminder, buff);
+		if (!(reminder = ft_strjoin(reminder, buff)))
+			return (-1);
 		free(tmp);
 		if (ft_strchr(buff, '\n'))
 			break ;
 	}
 	return (make_line(line, reminder));
-}
-#include <stdio.h>
-int main(){
-	int fd = open("/Users/kroyce/qwert/t.txt", O_RDONLY);
-	char *str;
-	while (get_next_line(fd, &str)){
-		printf("%s\n", str);
-		free(str);
-	}
-	free(str);
-	return 0;
 }
